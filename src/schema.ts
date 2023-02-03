@@ -1,4 +1,4 @@
-import { WHOISAPI } from "./datasources/whois-api";
+// Schema end point for the graphql server
 
 export const typeDefs = `#graphql
   type Query {
@@ -20,44 +20,3 @@ export const typeDefs = `#graphql
     domainAvailability: String
   }
 `;
-
-export const resolvers = {
-  Query: {
-    async domain(
-      parent: any,
-      { domainName: address }: { domainName: string },
-      { dataSources: { whoisAPI } }: { dataSources: { whoisAPI: WHOISAPI } }
-    ) {
-      // Re
-      const {
-        createdDate,
-        updatedDate,
-        expiresDate,
-        organization,
-        state,
-        country,
-        countryCode,
-        domainName,
-        registrarName,
-        registrarIANAID,
-        ip,
-        domainAvailability,
-      } = await whoisAPI.getDomainInfo(address);
-
-      return {
-        createdDate,
-        updatedDate,
-        expiresDate,
-        organization,
-        state,
-        country,
-        countryCode,
-        domainName,
-        registrarName,
-        registrarIANAID,
-        ip,
-        domainAvailability,
-      };
-    },
-  },
-};

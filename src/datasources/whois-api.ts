@@ -2,12 +2,15 @@ import { RESTDataSource } from "@apollo/datasource-rest";
 import type { KeyValueCache } from "@apollo/utils.keyvaluecache";
 
 export class WHOISAPI extends RESTDataSource {
+  // baseURL for WHOIS API
   override baseURL = "https://www.whoisxmlapi.com/whoisserver/";
 
   constructor(options: { cache: KeyValueCache }) {
     super(options);
   }
 
+  // Query domain info from WHOIS API
+  // Note: Make sure you set WHOIS_API_KEY in .env file
   async getDomainInfo(domainName: string) {
     const { WhoisRecord } = await this.get(`WhoisService?`, {
       params: {
@@ -27,10 +30,12 @@ export class WHOISAPI extends RESTDataSource {
   }
 }
 
+// Check if input is IPV6 format - x:x:x:x:x:x:x:x
 function isIPV6(str: String) {
   return str.includes(":");
 }
 
+// Check if input is IPV4 format - x.x.x.x
 function isIPV4(str: String) {
   return str.split(".").every((val: string) => {
     const numVal = parseInt(val);
@@ -38,6 +43,7 @@ function isIPV4(str: String) {
   });
 }
 
+// Standardize data from WHOIS API when input is a domain name like (google.com, apple.com, cyderes.com, etc)
 function formatDomainNameData(data: any) {
   const {
     createdDateNormalized,
@@ -67,6 +73,7 @@ function formatDomainNameData(data: any) {
   };
 }
 
+// Standardize data from WHOIS API when input is an IPV4V6 address like (192.0.2.126 or 0:0:0:0:0:ffff:192.1.56.10)
 function formatIPData(data: any) {
   const {
     domainName,
@@ -82,7 +89,6 @@ function formatIPData(data: any) {
   return {
     createdDate: createdDateNormalized,
     updatedDate: updatedDateNormalized,
-    expiresDate: "",
     organization: registrant.organization,
     state: registrant.state,
     country: registrant.country,
