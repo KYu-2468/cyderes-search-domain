@@ -1,14 +1,8 @@
-interface Registrant {
-  organization: String;
-  state: String;
-  country: String;
-  countryCode: String;
-  rawText: String;
-}
+import { WHOISAPI } from "./datasources/whois-api";
 
 export const typeDefs = `#graphql
   type Query {
-    domainName(domainName: String!): DomainInfo
+    domain(domainName: String!): DomainInfo
   }
 
   type DomainInfo {
@@ -20,58 +14,49 @@ export const typeDefs = `#graphql
     country: String
     countryCode: String
     domainName: String
-    status: String
-    rawText: String
     registrarName: String
     registrarIANAID: String
+    ip: String
+    domainAvailability: String
   }
 `;
 
 export const resolvers = {
   Query: {
-    async domainName(
+    async domain(
       parent: any,
-      { domainName: addres }: { domainName: String },
-      contextValue: any
+      { domainName: address }: { domainName: string },
+      { dataSources: { whoisAPI } }: { dataSources: { whoisAPI: WHOISAPI } }
     ) {
-      const { WhoisRecord } =
-        await contextValue.dataSources.whoisAPI.getDomainInfo(addres);
-
+      // Re
       const {
         createdDate,
         updatedDate,
         expiresDate,
-        registrant,
+        organization,
+        state,
+        country,
+        countryCode,
         domainName,
-        status,
-        rawText,
         registrarName,
         registrarIANAID,
-      }: {
-        createdDate: String;
-        updatedDate: String;
-        expiresDate: String;
-        registrant: Registrant;
-        domainName: String;
-        status: String;
-        rawText: String;
-        registrarName: String;
-        registrarIANAID: String;
-      } = WhoisRecord;
+        ip,
+        domainAvailability,
+      } = await whoisAPI.getDomainInfo(address);
 
       return {
         createdDate,
         updatedDate,
         expiresDate,
-        organization: registrant.organization,
-        state: registrant.state,
-        country: registrant.country,
-        countryCode: registrant.countryCode,
+        organization,
+        state,
+        country,
+        countryCode,
         domainName,
-        status,
-        rawText,
         registrarName,
         registrarIANAID,
+        ip,
+        domainAvailability,
       };
     },
   },
